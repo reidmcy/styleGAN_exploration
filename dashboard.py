@@ -115,7 +115,7 @@ def main():
         return PIL.Image.fromarray(a, 'RGB')
 
     def genRandomImage():
-        latents = np.random.randn(1, Gs.input_shape[1])
+        latents = np.random.randn(1, latent_dims)
         return genImage(latents)
 
     i = genRandomImage()
