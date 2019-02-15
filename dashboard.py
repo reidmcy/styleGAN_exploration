@@ -40,8 +40,7 @@ url = 'https://drive.google.com/uc?id=1MEGjdvVpUsu1jB4zrXZN7Y4kBBOzizDQ' # karra
 cache_dir = 'cache'
 
 
-app = dash.Dash(__name__)
-server = app.server
+
 
 def serve_layout():
     # Generates a session ID
@@ -99,42 +98,47 @@ def serve_layout():
         ]),
     ])
 
-app.layout = serve_layout
+
 
 
 def main():
     print("Generating")
 
-    def genImage(latents):
-        with tf.Session() as sess:
-            fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
-            with dnnlib.util.open_url(url, cache_dir) as f:
-                _G, _D, Gs = pickle.load(f)
-        #a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
+    with tf.Session() as sess:
+        fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
+        with dnnlib.util.open_url(url, cache_dir) as f:
+            _G, _D, Gs = pickle.load(f)
+
+        app = dash.Dash(__name__)
+        server = app.server
+        app.layout = serve_layout
+
+        def genImage(latents):
+            #a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
             a = Gs.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)[0]
-        return PIL.Image.fromarray(a, 'RGB')
+            return PIL.Image.fromarray(a, 'RGB')
 
-    def genRandomImage():
-        latents = np.random.randn(1, latent_dims)
-        return genImage(latents)
+        def genRandomImage():
+            latents = np.random.randn(1, latent_dims)
+            return genImage(latents)
 
-    i = genRandomImage()
+        i = genRandomImage()
 
-    @app.callback(
-        Output('div-interactive-image', 'children'),
-        [Input('vec_dims', 'data'),
-         Input('vec_dims', 'columns')])
-    def display_output(rows, columns):
+        @app.callback(
+            Output('div-interactive-image', 'children'),
+            [Input('vec_dims', 'data'),
+             Input('vec_dims', 'columns')])
+        def display_output(rows, columns):
 
-        vec = []
-        for r in rows:
-            vec += [v for k, v in r.items()]
-        return [drc.InteractiveImagePIL(
-            image_id='interactive-image',
-            image=genImage(np.array(vec).reshape(1,-1)),
-            )]
+            vec = []
+            for r in rows:
+                vec += [v for k, v in r.items()]
+            return [drc.InteractiveImagePIL(
+                image_id='interactive-image',
+                image=genImage(np.array(vec).reshape(1,-1)),
+                )]
 
-    app.run_server(debug=False, port=9012,host='0.0.0.0')
+        app.run_server(debug=False, port=9012,host='0.0.0.0')
 
 if __name__ == '__main__':
     main()
