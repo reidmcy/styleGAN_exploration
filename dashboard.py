@@ -115,7 +115,7 @@ def main():
 
         def genImage(latents):
             #a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
-            a = Gs.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)[0]
+            a = Gs.run(latents, None, sess = sess, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)[0]
             return PIL.Image.fromarray(a, 'RGB')
 
         def genRandomImage():
