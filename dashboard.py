@@ -18,7 +18,7 @@ import plotly.graph_objs as go
 import dash_reusable_components as drc
 from PIL import Image, ImageFilter, ImageDraw, ImageEnhance
 
-import tflib
+import dnnlib.tflib as tflib
 
 app = dash.Dash(__name__)
 server = app.server

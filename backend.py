@@ -21,7 +21,6 @@ cache_dir = 'cache'
 
 class NetworkWrapper(object):
     def __init__(self):
-        tflib.init_tf()
         with dnnlib.util.open_url(url, cache_dir) as f:
             _G, _D, Gs = pickle.load(f)
         self.Gs = Gs
