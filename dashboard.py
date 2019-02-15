@@ -33,43 +33,18 @@ import dnnlib
 import dnnlib.tflib as tflib
 latent_dims = 512
 
-tflib.init_tf()
 
-url = 'https://drive.google.com/uc?id=1MEGjdvVpUsu1jB4zrXZN7Y4kBBOzizDQ' # karras2019stylegan-ffhq-1024x1024.pkl
-
-cache_dir = 'cache'
-
-with dnnlib.util.open_url(url, cache_dir) as f:
-    _G, _D, Gs = pickle.load(f)
-Gs = Gs
-inputShape = Gs.input_shape[1]
-fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
-
-def genImage(latents):
-    a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
-    #a = Gs.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)[0]
+def genImage(latents, G):
+    #a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
+    a = G.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)[0]
     return PIL.Image.fromarray(a, 'RGB')
 
-def genRandomImage():
+def genRandomImage(G):
     latents = np.random.randn(1, Gs.input_shape[1])
     return genImage(latents)
 
 app = dash.Dash(__name__)
 server = app.server
-
-
-def addVectSelectors():
-    return dash_table.DataTable(
-        id='vec_dims',
-        columns=[{"name": i, "id": i} for i in range(8)],
-        data={i : [0 for j in range(64)] for i in range(8)},
-    )
-
-df = pandas.DataFrame({i : [0 for j in range(64)] for i in range(8)}, columns=range(8))
-print(df)
-print(df.to_dict('rows'))
-print(df.columns)
-
 
 def serve_layout():
     # Generates a session ID
@@ -127,30 +102,39 @@ def serve_layout():
         ]),
     ])
 
-
-
-
-
 app.layout = serve_layout
 
-@app.callback(
-    Output('div-interactive-image', 'children'),
-    [Input('vec_dims', 'data'),
-     Input('vec_dims', 'columns')])
-def display_output(rows, columns):
-
-    vec = []
-    for r in rows:
-        vec += [v for k, v in r.items()]
-    print(np.array(vec).reshape(1,-1))
-    print(np.array(vec).reshape(1,-1).shape)
-    return [drc.InteractiveImagePIL(
-        image_id='interactive-image',
-        image=genImage(np.array(vec).reshape(1,-1)),
-        )]
 
 def main():
     print("Generating")
+
+    tflib.init_tf()
+
+    url = 'https://drive.google.com/uc?id=1MEGjdvVpUsu1jB4zrXZN7Y4kBBOzizDQ' # karras2019stylegan-ffhq-1024x1024.pkl
+
+    cache_dir = 'cache'
+
+    with dnnlib.util.open_url(url, cache_dir) as f:
+        _G, _D, Gs = pickle.load(f)
+
+    fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
+
+    @app.callback(
+        Output('div-interactive-image', 'children'),
+        [Input('vec_dims', 'data'),
+         Input('vec_dims', 'columns')])
+    def display_output(rows, columns):
+
+        vec = []
+        for r in rows:
+            vec += [v for k, v in r.items()]
+        print(np.array(vec).reshape(1,-1))
+        print(np.array(vec).reshape(1,-1).shape)
+        return [drc.InteractiveImagePIL(
+            image_id='interactive-image',
+            image=genImage(np.array(vec).reshape(1,-1), Gs),
+            )]
+
     app.run_server(debug=False, port=9012,host='0.0.0.0')
 
 if __name__ == '__main__':
