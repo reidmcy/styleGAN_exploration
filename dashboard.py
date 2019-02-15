@@ -133,7 +133,8 @@ def main():
         print(np.array(vec).reshape(1,-1).shape)
         return [drc.InteractiveImagePIL(
             image_id='interactive-image',
-            image=genRandomImage()]
+            image=genRandomImage(),
+            )]
 
     app.run_server(debug=False, port=9012,host='0.0.0.0')
 
