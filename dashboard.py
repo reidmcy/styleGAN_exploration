@@ -58,8 +58,6 @@ app = dash.Dash(__name__)
 server = app.server
 
 
-N = backend.NetworkWrapper()
-
 def addVectSelectors():
     return dash_table.DataTable(
         id='vec_dims',
@@ -121,7 +119,7 @@ def serve_layout():
                         html.Div(id='div-interactive-image', children=[
                             drc.InteractiveImagePIL(
                                 image_id='interactive-image',
-                                image=N.genRandomImage(),
+                                image=genRandomImage(),
                                 )
                             ]),
                     ]),
@@ -148,7 +146,7 @@ def display_output(rows, columns):
     print(np.array(vec).reshape(1,-1).shape)
     return [drc.InteractiveImagePIL(
         image_id='interactive-image',
-        image=N.genImage(np.array(vec).reshape(1,-1)),
+        image=genImage(np.array(vec).reshape(1,-1)),
         )]
 
 def main():
