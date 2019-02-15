@@ -119,7 +119,7 @@ def main():
 
     def genRandomImage(G):
         latents = np.random.randn(1, Gs.input_shape[1])
-        return genImage(latents)
+        return genImage(latents, G)
 
     i = genRandomImage(Gs)
 
