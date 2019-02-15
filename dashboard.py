@@ -116,7 +116,7 @@ def display_output(rows, columns):
 
 def main():
     print("Generating")
-    app.run_server(debug=True, port=9012,host=‘0.0.0.0’)
+    app.run_server(debug=True, port=9012,host='0.0.0.0')
 
 if __name__ == '__main__':
     main()
