@@ -134,7 +134,10 @@ def main():
         print(np.array(vec).reshape(1,-1).shape)
         return [drc.InteractiveImagePIL(
             image_id='interactive-image',
-            image=genImage(np.array(vec).reshape(1,-1), Gs),
+            image=genImage(
+                PIL.Image.fromarray(
+                    Gs.run(np.array(vec).reshape(1,-1), None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)
+                , 'RGB'),
             )]
 
     app.run_server(debug=False, port=9012,host='0.0.0.0')
