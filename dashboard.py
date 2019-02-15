@@ -129,11 +129,9 @@ def main():
         vec = []
         for r in rows:
             vec += [v for k, v in r.items()]
-        print(np.array(vec).reshape(1,-1))
-        print(np.array(vec).reshape(1,-1).shape)
         return [drc.InteractiveImagePIL(
             image_id='interactive-image',
-            image=genRandomImage(),
+            image=genImage(np.array(vec).reshape(1,-1)),
             )]
 
     app.run_server(debug=False, port=9012,host='0.0.0.0')
