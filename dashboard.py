@@ -35,6 +35,9 @@ import dnnlib
 import dnnlib.tflib as tflib
 latent_dims = 512
 
+url = 'https://drive.google.com/uc?id=1MEGjdvVpUsu1jB4zrXZN7Y4kBBOzizDQ' # karras2019stylegan-ffhq-1024x1024.pkl
+
+cache_dir = 'cache'
 
 
 app = dash.Dash(__name__)
@@ -102,48 +105,37 @@ app.layout = serve_layout
 def main():
     print("Generating")
 
-    with tf.Session() as sess:#tflib.init_tf()
+    def genImage(latents):
+        with tf.Session() as sess:
+            fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
+            with dnnlib.util.open_url(url, cache_dir) as f:
+                _G, _D, Gs = pickle.load(f)
+        #a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
+            a = Gs.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)[0]
+        return PIL.Image.fromarray(a, 'RGB')
 
-        url = 'https://drive.google.com/uc?id=1MEGjdvVpUsu1jB4zrXZN7Y4kBBOzizDQ' # karras2019stylegan-ffhq-1024x1024.pkl
+    def genRandomImage():
+        latents = np.random.randn(1, Gs.input_shape[1])
+        return genImage(latents)
 
-        cache_dir = 'cache'
+    i = genRandomImage(Gs)
 
-        with dnnlib.util.open_url(url, cache_dir) as f:
-            _G, _D, Gs = pickle.load(f)
+    @app.callback(
+        Output('div-interactive-image', 'children'),
+        [Input('vec_dims', 'data'),
+         Input('vec_dims', 'columns')])
+    def display_output(rows, columns):
 
+        vec = []
+        for r in rows:
+            vec += [v for k, v in r.items()]
+        print(np.array(vec).reshape(1,-1))
+        print(np.array(vec).reshape(1,-1).shape)
+        return [drc.InteractiveImagePIL(
+            image_id='interactive-image',
+            image=genRandomImage()]
 
-        fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
-
-        def genImage(latents, G):
-            #a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
-            a = G.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)[0]
-            return PIL.Image.fromarray(a, 'RGB')
-
-        def genRandomImage(G):
-            latents = np.random.randn(1, Gs.input_shape[1])
-            return genImage(latents, G)
-
-        i = genRandomImage(Gs)
-
-        @app.callback(
-            Output('div-interactive-image', 'children'),
-            [Input('vec_dims', 'data'),
-             Input('vec_dims', 'columns')])
-        def display_output(rows, columns):
-
-            vec = []
-            for r in rows:
-                vec += [v for k, v in r.items()]
-            print(np.array(vec).reshape(1,-1))
-            print(np.array(vec).reshape(1,-1).shape)
-            return [drc.InteractiveImagePIL(
-                image_id='interactive-image',
-                image=genImage(
-                    PIL.Image.fromarray(
-                        Gs.run(np.array(vec).reshape(1,-1), None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt), 'RGB')),
-                )]
-
-        app.run_server(debug=False, port=9012,host='0.0.0.0')
+    app.run_server(debug=False, port=9012,host='0.0.0.0')
 
 if __name__ == '__main__':
     main()
