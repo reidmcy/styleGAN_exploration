@@ -94,7 +94,7 @@ def serve_layout():
                         html.Div(id='div-interactive-image', children=[
                             drc.InteractiveImagePIL(
                                 image_id='interactive-image',
-                                image=genRandomImage(),
+                                image=PIL.Image.fromarray(np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png')), 'RGB'),
                                 )
                             ]),
                     ]),
