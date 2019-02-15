@@ -5,6 +5,8 @@ import uuid
 import numpy as np
 import matplotlib.pyplot as plt
 
+import tensorflow as tf
+
 from dash.dependencies import Input, Output
 import pandas
 import dash
