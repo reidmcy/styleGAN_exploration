@@ -33,6 +33,7 @@ import dnnlib
 import dnnlib.tflib as tflib
 latent_dims = 512
 
+fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
 
 def genImage(latents, G):
     #a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
@@ -117,7 +118,6 @@ def main():
     with dnnlib.util.open_url(url, cache_dir) as f:
         _G, _D, Gs = pickle.load(f)
 
-    fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
 
     @app.callback(
         Output('div-interactive-image', 'children'),
