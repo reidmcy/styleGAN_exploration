@@ -18,9 +18,12 @@ import plotly.graph_objs as go
 import dash_reusable_components as drc
 from PIL import Image, ImageFilter, ImageDraw, ImageEnhance
 
+import tflib
+
 app = dash.Dash(__name__)
 server = app.server
 
+tflib.init_tf()
 N = backend.NetworkWrapper()
 
 def addVectSelectors():
