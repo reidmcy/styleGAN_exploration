@@ -33,6 +33,8 @@ import dnnlib
 import dnnlib.tflib as tflib
 latent_dims = 512
 
+tflib.init_tf()
+
 url = 'https://drive.google.com/uc?id=1MEGjdvVpUsu1jB4zrXZN7Y4kBBOzizDQ' # karras2019stylegan-ffhq-1024x1024.pkl
 
 cache_dir = 'cache'
@@ -55,7 +57,7 @@ def genRandomImage():
 app = dash.Dash(__name__)
 server = app.server
 
-tflib.init_tf()
+
 N = backend.NetworkWrapper()
 
 def addVectSelectors():
