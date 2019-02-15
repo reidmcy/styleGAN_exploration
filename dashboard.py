@@ -118,7 +118,7 @@ def main():
         latents = np.random.randn(1, Gs.input_shape[1])
         return genImage(latents)
 
-    i = genRandomImage(Gs)
+    i = genRandomImage()
 
     @app.callback(
         Output('div-interactive-image', 'children'),
