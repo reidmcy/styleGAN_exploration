@@ -5,7 +5,6 @@ import uuid
 import numpy as np
 import matplotlib.pyplot as plt
 
-import backend
 from dash.dependencies import Input, Output
 import pandas
 import dash
@@ -18,7 +17,40 @@ import plotly.graph_objs as go
 import dash_reusable_components as drc
 from PIL import Image, ImageFilter, ImageDraw, ImageEnhance
 
+import os
+import os.path
+import pickle
+import random
+import sys
+
+import numpy as np
+import PIL.Image
+
+import sys
+sys.path.append(os.path.abspath('stylegan'))
+
+import dnnlib
 import dnnlib.tflib as tflib
+latent_dims = 512
+
+url = 'https://drive.google.com/uc?id=1MEGjdvVpUsu1jB4zrXZN7Y4kBBOzizDQ' # karras2019stylegan-ffhq-1024x1024.pkl
+
+cache_dir = 'cache'
+
+with dnnlib.util.open_url(url, cache_dir) as f:
+    _G, _D, Gs = pickle.load(f)
+Gs = Gs
+inputShape = Gs.input_shape[1]
+fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
+
+def genImage(latents):
+    #a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
+    a = Gs.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)[0]
+    return PIL.Image.fromarray(a, 'RGB')
+
+def genRandomImage():
+    latents = np.random.randn(1, Gs.input_shape[1])
+    return genImage(latents)
 
 app = dash.Dash(__name__)
 server = app.server
