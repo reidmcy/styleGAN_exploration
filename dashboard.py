@@ -33,16 +33,7 @@ import dnnlib
 import dnnlib.tflib as tflib
 latent_dims = 512
 
-fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
 
-def genImage(latents, G):
-    #a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
-    a = G.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)[0]
-    return PIL.Image.fromarray(a, 'RGB')
-
-def genRandomImage(G):
-    latents = np.random.randn(1, Gs.input_shape[1])
-    return genImage(latents)
 
 app = dash.Dash(__name__)
 server = app.server
@@ -118,6 +109,17 @@ def main():
     with dnnlib.util.open_url(url, cache_dir) as f:
         _G, _D, Gs = pickle.load(f)
 
+
+    fmt = dict(func=tflib.convert_images_to_uint8, nchw_to_nhwc=True)
+
+    def genImage(latents, G):
+        #a = np.asanyarray(PIL.Image.open('images/-2_-2_-2_-2_0_0_0s.png'))
+        a = G.run(latents, None, truncation_psi=0.7, randomize_noise=True, output_transform=fmt)[0]
+        return PIL.Image.fromarray(a, 'RGB')
+
+    def genRandomImage(G):
+        latents = np.random.randn(1, Gs.input_shape[1])
+        return genImage(latents)
 
     @app.callback(
         Output('div-interactive-image', 'children'),
